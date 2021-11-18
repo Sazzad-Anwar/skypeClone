@@ -1,11 +1,15 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import DarkModeToggler from '../Components/DarkModeToggler';
+import { useDispatch } from 'react-redux';
+import { login } from '../Redux/Actions/LoginAction';
 
 const Login = () => {
     const [showPass, setShowPass] = useState(false);
+    const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const {
         register,
@@ -14,9 +18,17 @@ const Login = () => {
         formState: { errors },
     } = useForm();
 
+    let from = location.state?.from?.pathname || '/dashboard';
+
+    useEffect(() => {
+        if (localStorage.getItem('token')) {
+            navigate(from);
+        }
+    }, [navigate, from]);
+
     const onSubmit = (data) => {
-        navigate('/dashboard');
-        console.log(data);
+        dispatch(login(data));
+        navigate(from);
     };
 
     return (
@@ -28,7 +40,7 @@ const Login = () => {
                 <div className="flex justify-center items-center mb-6">
                     <img className="h-20" src="/logo.png" alt="logo" />
                 </div>
-                <form onSubmit={handleSubmit(onSubmit)} autocomplete="off">
+                <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
                     <Controller
                         {...register('email', { required: true })}
                         control={control}

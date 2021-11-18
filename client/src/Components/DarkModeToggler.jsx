@@ -1,26 +1,32 @@
 import { useEffect, useState } from 'react';
 
 const DarkModeToggler = () => {
-    const [darkMode, setDarkMode] = useState(false);
+    const [theme, setTheme] = useState('dark');
 
     useEffect(() => {
-        if (localStorage.getItem('darkMode') === 'true' || darkMode) {
+        if (
+            localStorage.theme === 'dark' ||
+            (!('theme' in localStorage) &&
+                window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
             document.documentElement.classList.add('dark');
         } else {
-            localStorage.setItem('darkMode', 'false');
+            localStorage.setItem('theme', 'light');
             document.documentElement.classList.remove('dark');
         }
-    }, [darkMode]);
+    }, [theme]);
 
     return (
         <span
             onClick={() => {
-                setDarkMode(!darkMode);
-                localStorage.setItem('darkMode', !darkMode);
+                setTheme(theme === 'dark' ? 'light' : 'dark');
+                localStorage.setItem('theme', theme === 'dark' ? 'light' : 'dark');
             }}
-            className={`material-icons-outlined cursor-pointer hover:text-gray-700 dark:text-white dark:hover:text-gray-300 transition-all ease-in-out`}
+            className="material-icons-outlined cursor-pointer hover:text-gray-700 dark:text-white dark:hover:text-gray-300 transition-all ease-in-out"
         >
-            {darkMode || localStorage.getItem('darkMode') === 'true'
+            {localStorage.theme === 'dark' ||
+            (!('theme' in localStorage) &&
+                window.matchMedia('(prefers-color-scheme: dark)').matches)
                 ? 'light_mode'
                 : 'nightlight_round'}
         </span>
