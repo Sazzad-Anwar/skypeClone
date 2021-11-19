@@ -4,6 +4,7 @@ import Login from './Screens/Login';
 import Registration from './Screens/Registration';
 import Dashboard from './Screens/Dashboard';
 import ProtectedRoute from './Components/ProtectedRoute';
+import Test from './Screens/Test';
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
         </ProtectedRoute>
       }
       />
+      <Route path="/test" element={<Test />} />
       <Route path="/" element={<Login />} />
     </Routes>
   );

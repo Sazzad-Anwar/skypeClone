@@ -1,4 +1,5 @@
 import { Dropdown, Menu } from 'antd';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ChatUser from './ChatUser';
 import DarkModeToggler from './DarkModeToggler';
@@ -12,6 +13,9 @@ const SidePanel = ({
     chatListHeight,
     openUserChat,
 }) => {
+    const [status, setStatus] = useState('Active');
+    const [onlineStatus, setOnlineStatus] = useState('active');
+
     const menu = (
         <Menu className="dark:bg-gray-800">
             <Menu.Item className="dark:text-white dark:hover:text-black">
@@ -26,6 +30,70 @@ const SidePanel = ({
                     }}
                 >
                     Logout
+                </p>
+            </Menu.Item>
+        </Menu>
+    );
+
+    const statusDropDown = (
+        <Menu className="dark:bg-gray-800">
+            <Menu.Item className="dark:text-white dark:hover:text-black">
+                <p onClick={() => setStatus('Be right back')}>Be right back</p>
+            </Menu.Item>
+            <Menu.Item className="dark:text-white dark:hover:text-black">
+                <p onClick={() => setStatus('Out of lunch')}>Out of lunch</p>
+            </Menu.Item>
+            <Menu.Item className="dark:text-white dark:hover:text-black">
+                <p onClick={() => setStatus('Out for lunch')}>Out for lunch</p>
+            </Menu.Item>
+            <Menu.Item className="dark:text-white dark:hover:text-black">
+                <p onClick={() => setStatus('In meetings')}>In meetings</p>
+            </Menu.Item>
+            <Menu.Item className="dark:text-white dark:hover:text-black">
+                <p onClick={() => setStatus('At school')}>At school</p>
+            </Menu.Item>
+            <Menu.Item className="dark:text-white dark:hover:text-black">
+                <p onClick={() => setStatus('At the movies')}>At the movies</p>
+            </Menu.Item>
+            <Menu.Item className="dark:text-white dark:hover:text-black">
+                <p onClick={() => setStatus('Working from home')}>Working from home</p>
+            </Menu.Item>
+        </Menu>
+    );
+
+    const onlineStatusDropDown = (
+        <Menu className="dark:bg-gray-800">
+            <Menu.Item className="dark:text-white dark:hover:text-black">
+                <p
+                    onClick={() => setOnlineStatus('active')}
+                    className="flex justify-end items-center"
+                >
+                    {onlineStatus === 'active' && (
+                        <span class="material-icons-outlined text-xs mr-2">done</span>
+                    )}
+                    <span>Active</span>
+                </p>
+            </Menu.Item>
+            <Menu.Item className="dark:text-white dark:hover:text-black">
+                <p
+                    onClick={() => setOnlineStatus('away')}
+                    className="flex justify-end items-center"
+                >
+                    {onlineStatus === 'away' && (
+                        <span class="material-icons-outlined text-xs mr-2">done</span>
+                    )}
+                    <span>Away</span>
+                </p>
+            </Menu.Item>
+            <Menu.Item className="dark:text-white dark:hover:text-black">
+                <p
+                    onClick={() => setOnlineStatus('do not disturb')}
+                    className="flex justify-end items-center"
+                >
+                    {onlineStatus === 'do not disturb' && (
+                        <span class="material-icons-outlined text-xs mr-2">done</span>
+                    )}
+                    <span>Do not disturb</span>
                 </p>
             </Menu.Item>
         </Menu>
@@ -51,18 +119,37 @@ const SidePanel = ({
                                     alt="user"
                                 />
                             )}
-
-                            <div className="absolute bottom-0 right-0 border rounded-full h-3 w-3 bg-green-500"></div>
+                            <Dropdown
+                                overlay={onlineStatusDropDown}
+                                placement="bottomRight"
+                                trigger={['click']}
+                            >
+                                <div
+                                    className={`absolute bottom-0 right-0 border rounded-full h-3 w-3 cursor-pointer ${
+                                        onlineStatus === 'active'
+                                            ? 'bg-green-500'
+                                            : onlineStatus === 'away'
+                                            ? 'bg-yellow-400'
+                                            : 'bg-red-600'
+                                    }`}
+                                ></div>
+                            </Dropdown>
                         </div>
                         <div className="pl-2">
                             <p className="text-sm mb-0">{user?.details?.name}</p>
-                            <p className="text-xs mb-0 dark:text-gray-200 text-gray-500 font-semibold pt-1 cursor-pointer">
-                                Set a status
-                            </p>
+                            <Dropdown
+                                overlay={statusDropDown}
+                                placement="bottomRight"
+                                trigger={['click']}
+                            >
+                                <p className="text-xs mb-0 dark:text-gray-200 text-gray-500 font-semibold pt-1 cursor-pointer">
+                                    {status}
+                                </p>
+                            </Dropdown>
                         </div>
                     </div>
                     <DarkModeToggler />
-                    <Dropdown overlay={menu} placement="bottomRight" arrow>
+                    <Dropdown overlay={menu} placement="bottomRight" trigger={['click']}>
                         <span className="material-icons-outlined p-1 cursor-pointer border rounded-full border-gray-400 dark:border-gray-800 hover:bg-gray-400 hover:text-white dark:hover:bg-gray-800 transition-all ease-in-out">
                             more_horiz
                         </span>

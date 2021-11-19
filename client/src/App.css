@@ -1,6 +1,5 @@
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
-@import '~antd/dist/antd.css';
 .material-icons-outlined {
     font-family: 'Material Icons';
     font-weight: normal;
@@ -64,4 +63,49 @@ div::-webkit-scrollbar-thumb:hover {
 .ant-input-focused {
     border-color: transparent !important;
     box-shadow: none !important;
+}
+
+svg {
+    vertical-align: initial;
+}
+
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+    display: initial;
+}
+
+.page-header-bg {
+    background-color: #302938;
+}
+
+#components-layout-demo-custom-trigger .trigger {
+    padding: 0 24px;
+    font-size: 18px;
+    line-height: 64px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+#components-layout-demo-custom-trigger .trigger:hover {
+    color: #1890ff;
+}
+
+#components-layout-demo-custom-trigger .logo {
+    height: 32px;
+    margin: 16px;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.site-layout .site-layout-background {
+    background: #fff;
+}
+
+.ant-image-preview-mask {
+    background-color: rgb(0 0 0 / 72%);
 }

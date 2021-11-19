@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Menu, Dropdown, Input, Modal } from 'antd';
+import { Menu, Dropdown, Input, Modal, Upload } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import Picker from 'emoji-picker-react';
 const { TextArea } = Input;
@@ -9,6 +10,7 @@ const ChatArea = ({ image, isActive, name }) => {
     const textArea = useRef(0);
     const bottomAreaHeight = useRef(0);
     const lastMessage = useRef(null);
+    const [pickFile, setPickFile] = useState(false);
     const [inputTextWidth, setInputTextWidth] = useState(0);
     const [textAreaParentHeight, setTextAreaParentHeight] = useState(0);
     const [bottomAreaFullHeight, setBottomAreaFullHeight] = useState(0);
@@ -17,6 +19,10 @@ const ChatArea = ({ image, isActive, name }) => {
     const [showPicker, setShowPicker] = useState(false);
     const user = useSelector((state) => state.user);
     const [chatList, setChatList] = useState([]);
+    const [fileList, setFileList] = useState([]);
+    const [previewVisible, setPreviewVisible] = useState(false);
+    const [previewImage, setPreviewImage] = useState('');
+    const [previewTitle, setPreviewTitle] = useState('');
 
     let audio = new Audio('/message.mp3');
 
@@ -46,10 +52,9 @@ const ChatArea = ({ image, isActive, name }) => {
         setMessage((prevInput) => prevInput + emojiObject.emoji);
     };
 
-    const sendMessage = (e) => {
-        if (e.key === 'Enter' || e.key === 'NumpadEnter') {
-            e.preventDefault();
-            setMessage('');
+    //send message handler
+    const messageSendHandler = () => {
+        if (message.trim() !== '') {
             setChatList((previous) => [
                 ...previous,
                 {
@@ -61,6 +66,7 @@ const ChatArea = ({ image, isActive, name }) => {
                     }),
                 },
             ]);
+            setMessage('');
 
             setTimeout(() => {
                 setChatList((previous) => [
@@ -79,6 +85,15 @@ const ChatArea = ({ image, isActive, name }) => {
         }
     };
 
+    // send message
+    const sendMessage = (e) => {
+        if (e.key === 'Enter' || e.key === 'NumpadEnter') {
+            e.preventDefault();
+            messageSendHandler();
+        }
+    };
+
+    // dropdown menu for mobile view
     const menu = (
         <Menu className="dark:bg-gray-800">
             <Menu.Item className="dark:text-white dark:hover:text-black">
@@ -99,6 +114,7 @@ const ChatArea = ({ image, isActive, name }) => {
         </Menu>
     );
 
+    // dropdown menu for chat
     const messageOptions = (
         <Menu className="dark:bg-gray-800">
             <Menu.Item className="dark:text-white dark:hover:text-black" key="1">
@@ -114,6 +130,37 @@ const ChatArea = ({ image, isActive, name }) => {
                 Select Message
             </Menu.Item>
         </Menu>
+    );
+
+    // get image in base64
+    const getBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
+    };
+
+    const handleCancel = () => setPreviewVisible(false);
+
+    const handlePreview = async (file) => {
+        if (!file.url && !file.preview) {
+            file.preview = await getBase64(file.originFileObj);
+        }
+
+        setPreviewImage(file.url || file.preview);
+        setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
+        setPreviewVisible(true);
+    };
+
+    const handleChange = ({ fileList }) => setFileList(fileList);
+
+    const uploadButton = (
+        <div>
+            <PlusOutlined />
+            <div style={{ marginTop: 8 }}>Select</div>
+        </div>
     );
 
     return (
@@ -150,7 +197,7 @@ const ChatArea = ({ image, isActive, name }) => {
                                             overlay={messageOptions}
                                             trigger={['contextMenu']}
                                         >
-                                            <div className="ml-2 p-3 max-w-xs lg:max-w-lg xl:max-w-xl border dark:border-gray-800 rounded-tl-none rounded-xl dark:bg-gray-800">
+                                            <div className="ml-2 p-3 max-w-xs lg:max-w-lg xl:max-w-xl border dark:border-gray-800 rounded-tl-none rounded-xl dark:bg-gray-800 shadow-xl">
                                                 {chat.message}
                                             </div>
                                         </Dropdown>
@@ -170,7 +217,7 @@ const ChatArea = ({ image, isActive, name }) => {
                                             overlay={messageOptions}
                                             trigger={['contextMenu']}
                                         >
-                                            <div className="mr-2 p-3 max-w-xs lg:max-w-lg xl:max-w-xl ml-auto flex border dark:border-gray-800 rounded-tr-none rounded-xl dark:bg-gray-800">
+                                            <div className="mr-2 p-3 max-w-xs lg:max-w-lg xl:max-w-xl ml-auto flex border dark:border-gray-800 rounded-tr-none rounded-xl dark:bg-gray-800 shadow-xl">
                                                 {chat.message}
                                             </div>
                                         </Dropdown>
@@ -201,56 +248,95 @@ const ChatArea = ({ image, isActive, name }) => {
 
             {/* input text area */}
             <div
-                className=" py-2 sticky bottom-0 left-0 right-0 dark:bg-black"
+                className=" py-2 sticky bottom-0 left-0 right-0 dark:bg-black ml-auto"
                 ref={bottomAreaHeight}
             >
                 <div className="flex justify-between">
                     <div
-                        className="flex dark:bg-gray-800 border dark:border-gray-800 rounded-xl overflow-x-hidden"
+                        className="group dark:bg-gray-800 border dark:border-gray-800 rounded-xl "
                         style={{
                             width: inputTextWidth * (3 / 4),
                         }}
                     >
-                        <div>
-                            <span
-                                onClick={() => setShowPicker((val) => !val)}
-                                className="material-icons-outlined p-2 mr-1 cursor-pointer rounded-full border-gray-400 dark:border-gray-800 hover:bg-gray-400 hover:text-white dark:hover:bg-gray-900 transition-all ease-in-out"
-                            >
-                                sentiment_satisfied
-                            </span>
-                            <Modal
-                                title="Select Emoji"
-                                centered
-                                visible={showPicker}
-                                onOk={() => setShowPicker(false)}
-                            >
-                                <Picker
-                                    pickerStyle={{ width: '100%' }}
-                                    onEmojiClick={onEmojiClick}
-                                />
-                            </Modal>
-                        </div>
+                        {pickFile && (
+                            <div className="flex flex-wrap items-center h-32 px-2 py-1 overflow-auto w-full">
+                                <Upload
+                                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                                    listType="picture-card"
+                                    fileList={fileList}
+                                    onPreview={handlePreview}
+                                    onChange={handleChange}
+                                    multiple={true}
+                                >
+                                    {uploadButton}
+                                </Upload>
+                                <Modal
+                                    visible={previewVisible}
+                                    title={previewTitle}
+                                    footer={null}
+                                    onCancel={handleCancel}
+                                >
+                                    <img
+                                        alt="example"
+                                        style={{ width: '100%' }}
+                                        src={previewImage}
+                                    />
+                                </Modal>
+                            </div>
+                        )}
 
-                        <TextArea
-                            ref={textArea}
-                            value={message}
-                            type="text"
-                            placeholder="Type a message"
-                            className="dark:text-white focus:border-none hover:border-none p-6 text-xl h-11  border dark:border-gray-800 dark:bg-gray-800 focus:outline-none rounded-xl"
-                            style={{
-                                width: inputTextWidth * (3 / 4) - 30,
-                            }}
-                            onChange={(e) => setMessage(e.target.value)}
-                            onKeyPress={sendMessage}
-                            autoSize={{ maxRows: 5, minRows: 5 }}
-                        />
+                        <div className="flex overflow-x-hidden">
+                            <div>
+                                <span
+                                    onClick={() => setShowPicker((val) => !val)}
+                                    className="material-icons-outlined p-2 mr-1 cursor-pointer rounded-full border-gray-400 dark:border-gray-800 hover:bg-gray-400 hover:text-white dark:hover:bg-gray-900 transition-all ease-in-out"
+                                >
+                                    sentiment_satisfied
+                                </span>
+                                <Modal
+                                    title="Select Emoji"
+                                    centered
+                                    visible={showPicker}
+                                    onOk={() => setShowPicker(false)}
+                                    onCancel={() => setShowPicker(false)}
+                                >
+                                    <Picker
+                                        pickerStyle={{ width: '100%' }}
+                                        onEmojiClick={onEmojiClick}
+                                    />
+                                </Modal>
+                            </div>
+
+                            <TextArea
+                                ref={textArea}
+                                value={message}
+                                type="text"
+                                placeholder="Type a message"
+                                className="dark:text-white h-11 transition-all ease-in-out focus:border-none hover:border-none pt-2 text-lg border-none dark:border-gray-800 dark:bg-gray-800 focus:outline-none rounded-xl"
+                                style={{
+                                    width: inputTextWidth * (3 / 4) - 30,
+                                }}
+                                onChange={(e) => setMessage(e.target.value)}
+                                onKeyPress={sendMessage}
+                                autoSize={{ maxRows: 5, minRows: 5 }}
+                            />
+                        </div>
                     </div>
 
                     <div>
+                        <span
+                            className="material-icons-outlined p-2 mx-2 dark:bg-gray-800 cursor-pointer border rounded-full border-gray-400 dark:border-gray-800 hover:bg-gray-400 hover:text-white dark:hover:bg-black transition-all ease-in-out"
+                            onClick={messageSendHandler}
+                        >
+                            send
+                        </span>
                         {!isMobileWidth ? (
                             <>
-                                <span className="material-icons-outlined p-2 mx-2 dark:bg-gray-800 cursor-pointer border rounded-full border-gray-400 dark:border-gray-800 hover:bg-gray-400 hover:text-white dark:hover:bg-black transition-all ease-in-out">
-                                    attach_file
+                                <span
+                                    className="material-icons-outlined p-2 mx-2 dark:bg-gray-800 cursor-pointer border rounded-full border-gray-400 dark:border-gray-800 hover:bg-gray-400 hover:text-white dark:hover:bg-black transition-all ease-in-out"
+                                    onClick={() => setPickFile(!pickFile)}
+                                >
+                                    {pickFile ? 'close' : 'attach_file'}
                                 </span>
                                 <span className="material-icons-outlined p-2 mx-2 dark:bg-gray-800 cursor-pointer border rounded-full border-gray-400 dark:border-gray-800 hover:bg-gray-400 hover:text-white dark:hover:bg-black transition-all ease-in-out">
                                     contact_mail

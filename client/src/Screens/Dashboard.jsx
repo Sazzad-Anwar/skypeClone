@@ -6,12 +6,14 @@ import { useNavigate } from 'react-router';
 import WelcomePage from '../Components/WelcomePage';
 import Chatting from './../Components/Chatting';
 import SidePanel from '../Components/SidePanel';
+import RightSidePanel from '../Components/RightSidePanel';
 
 const Dashboard = () => {
     const [socketId, setSocketId] = useState('');
     const [chatListHeight, setChatListHeight] = useState(0);
     const [userChatOpen, setUserChatOpen] = useState(false);
     const [isMobileWidth, setIsMobileWidth] = useState(false);
+    const [showFiles, setShowFiles] = useState(false);
     const user = useSelector((state) => state.user);
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -53,6 +55,10 @@ const Dashboard = () => {
     };
     const closeUserChat = (userId) => {
         setUserChatOpen(false);
+    };
+
+    const toggleRightSidePanel = () => {
+        setShowFiles(!showFiles);
     };
 
     return (
@@ -102,12 +108,21 @@ const Dashboard = () => {
                             image={`https://ui-avatars.com/api/?name=John+Doe`}
                             name={'John Doe'}
                             isActive={true}
+                            toggleRightSidePanel={toggleRightSidePanel}
                         />
                     ) : (
                         <WelcomePage img={user?.details?.photo} name={user?.details?.name} />
                     )}
                 </div>
             ) : null}
+
+            {showFiles && (
+                <div
+                    className={` transition-all absolute right-0 w-full lg:w-72 top-0 ease-in-out h-screen duration-1000 dark:bg-gray-900 dark:text-white border dark:border-gray-900 overflow-hidden z-10 bg-white`}
+                >
+                    <RightSidePanel toggleRightSidePanel={toggleRightSidePanel} />
+                </div>
+            )}
         </div>
     );
 };
