@@ -13,7 +13,7 @@ const RightSidePanel = ({ toggleRightSidePanel }) => {
                 {[...Array(20)].map((_, i) => {
                     if (i % 2 === 0) {
                         return (
-                            <div className="my-4 ">
+                            <div key={i} className="my-4">
                                 <p className="dark:text-gray-500 text-black mb-1">You, 4.16 PM</p>
                                 <div className="w-full border dark:border-gray-800 rounded-xl flex justify-center p-2 shadow hover:shadow-lg transition-shadow ease-in-out duration-700">
                                     <Image
@@ -27,7 +27,7 @@ const RightSidePanel = ({ toggleRightSidePanel }) => {
                         );
                     }
                     return (
-                        <div className="my-4 ">
+                        <div key={i} className="my-4 ">
                             <p className="dark:text-gray-500 text-black mb-1">You, 4.16 PM</p>
                             <div className="w-full border dark:border-gray-800 rounded-xl flex justify-center p-5 shadow hover:shadow-lg transition-shadow ease-in-out duration-700 flex-col">
                                 <p className="dark:text-gray-300 text-black text-lg">

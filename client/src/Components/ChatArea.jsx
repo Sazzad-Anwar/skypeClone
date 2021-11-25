@@ -234,7 +234,10 @@ const ChatArea = ({ image, isActive, name }) => {
                                     <div className="h-9 w-9 lg:h-11 lg:w-11 border-gray-400 dark:border-gray-800 rounded-full">
                                         <img
                                             className="rounded-full h-9 w-9 lg:h-11 lg:w-11"
-                                            src={user?.details?.photo}
+                                            src={
+                                                user?.details?.photo ??
+                                                `https://ui-avatars.com/api/?name=${user.details.name}`
+                                            }
                                             alt="user"
                                         />
                                     </div>

@@ -2,26 +2,25 @@ import { io } from 'socket.io-client';
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logOut } from '../Redux/Actions/LoginAction';
-import { useNavigate } from 'react-router';
 import WelcomePage from '../Components/WelcomePage';
 import Chatting from './../Components/Chatting';
 import SidePanel from '../Components/SidePanel';
 import RightSidePanel from '../Components/RightSidePanel';
+import { userDetails } from './../Redux/Actions/UserAction';
 
 const Dashboard = () => {
-    const [socketId, setSocketId] = useState('');
+    const socket = useRef(null);
     const [chatListHeight, setChatListHeight] = useState(0);
     const [userChatOpen, setUserChatOpen] = useState(false);
     const [isMobileWidth, setIsMobileWidth] = useState(false);
     const [showFiles, setShowFiles] = useState(false);
     const user = useSelector((state) => state.user);
+    const details = useSelector((state) => state.details);
     const dispatch = useDispatch();
-    const navigate = useNavigate();
     const featureHeight = useRef(null);
+    const [userList, setUserList] = useState([]);
 
     useEffect(() => {
-        let socket = io('/');
-
         if (featureHeight.current) {
             if (window.innerWidth > 991) {
                 setChatListHeight(`calc(100vh - ${featureHeight.current.offsetHeight + 20}px)`);
@@ -44,10 +43,38 @@ const Dashboard = () => {
             }
         });
 
-        socket.on('connect', () => {
-            setSocketId(socket.id);
+        dispatch(userDetails(user?.details?._id));
+    }, [dispatch, user?.details?._id]);
+
+    //*---- Socket connections ----*//
+    useEffect(() => {
+        //initialize socket
+        socket.current = io('/');
+
+        //On connection to server the user id will be sent to server and the user will be added to the user list
+        socket.current.on('connect', () => {
+            // the user id is sent to the server while connected
+            socket.current.emit('new-user', { _id: user?.details?._id });
         });
-    }, [dispatch]);
+
+        return () => {
+            //disconnect socket connection on component unmount
+            socket.current.disconnect();
+        };
+    }, [socket, user?.details?._id]);
+
+    useEffect(() => {
+        //listen for new user list when a new user joins
+        socket.current.on('user-connected', (users) => {
+            //filter the user list to remove the current user
+            setUserList(users.filter((u) => u._id !== user?.details?._id));
+        });
+
+        return () => {
+            //disconnect socket connection on component unmount
+            socket.current.off();
+        };
+    }, [user?.details?._id, userList]);
 
     // open a user chat
     const openUserChat = (userId) => {
@@ -67,23 +94,21 @@ const Dashboard = () => {
                 <SidePanel
                     dispatch={dispatch}
                     logOut={logOut}
-                    navigate={navigate}
                     featureHeight={featureHeight}
-                    user={user}
-                    socketId={socketId}
+                    user={details}
                     chatListHeight={chatListHeight}
                     openUserChat={openUserChat}
+                    userList={userList}
                 />
             ) : !isMobileWidth ? (
                 <SidePanel
                     dispatch={dispatch}
                     logOut={logOut}
-                    navigate={navigate}
                     featureHeight={featureHeight}
-                    user={user}
-                    socketId={socketId}
+                    user={details?.details}
                     chatListHeight={chatListHeight}
                     openUserChat={openUserChat}
+                    userList={userList}
                 />
             ) : null}
 
@@ -98,7 +123,7 @@ const Dashboard = () => {
                             closeUserChat={closeUserChat}
                         />
                     ) : (
-                        <WelcomePage img={user?.details?.photo} name={user?.details?.name} />
+                        <WelcomePage img={details?.details?.photo} name={details?.details?.name} />
                     )}
                 </div>
             ) : !isMobileWidth ? (
@@ -111,7 +136,7 @@ const Dashboard = () => {
                             toggleRightSidePanel={toggleRightSidePanel}
                         />
                     ) : (
-                        <WelcomePage img={user?.details?.photo} name={user?.details?.name} />
+                        <WelcomePage img={details?.details?.photo} name={details?.details?.name} />
                     )}
                 </div>
             ) : null}

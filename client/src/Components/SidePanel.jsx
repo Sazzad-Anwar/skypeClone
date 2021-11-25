@@ -1,27 +1,29 @@
 import { Dropdown, Menu } from 'antd';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ChatUser from './ChatUser';
 import DarkModeToggler from './DarkModeToggler';
 
 const SidePanel = ({
     dispatch,
     logOut,
-    navigate,
     featureHeight,
     user,
     chatListHeight,
     openUserChat,
+    userList,
 }) => {
     const [status, setStatus] = useState('Active');
     const [onlineStatus, setOnlineStatus] = useState('active');
+    const [activeNav, setActiveNav] = useState('chat');
+    const navigate = useNavigate();
 
     const menu = (
         <Menu className="dark:bg-gray-800">
-            <Menu.Item className="dark:text-white dark:hover:text-black">
+            <Menu.Item key="setting" className="dark:text-white dark:hover:text-black">
                 <Link to="/setting">Setting</Link>
             </Menu.Item>
-            <Menu.Item className="dark:text-white dark:hover:text-black">
+            <Menu.Item key="logout" className="dark:text-white dark:hover:text-black">
                 <p
                     className="cursor-pointer mb-0"
                     onClick={() => {
@@ -37,25 +39,25 @@ const SidePanel = ({
 
     const statusDropDown = (
         <Menu className="dark:bg-gray-800">
-            <Menu.Item className="dark:text-white dark:hover:text-black">
+            <Menu.Item key="Be right back" className="dark:text-white dark:hover:text-black">
                 <p onClick={() => setStatus('Be right back')}>Be right back</p>
             </Menu.Item>
-            <Menu.Item className="dark:text-white dark:hover:text-black">
+            <Menu.Item key="Out of lunch" className="dark:text-white dark:hover:text-black">
                 <p onClick={() => setStatus('Out of lunch')}>Out of lunch</p>
             </Menu.Item>
-            <Menu.Item className="dark:text-white dark:hover:text-black">
+            <Menu.Item key="Out for lunch" className="dark:text-white dark:hover:text-black">
                 <p onClick={() => setStatus('Out for lunch')}>Out for lunch</p>
             </Menu.Item>
-            <Menu.Item className="dark:text-white dark:hover:text-black">
+            <Menu.Item key="In meetings" className="dark:text-white dark:hover:text-black">
                 <p onClick={() => setStatus('In meetings')}>In meetings</p>
             </Menu.Item>
-            <Menu.Item className="dark:text-white dark:hover:text-black">
+            <Menu.Item key="At school" className="dark:text-white dark:hover:text-black">
                 <p onClick={() => setStatus('At school')}>At school</p>
             </Menu.Item>
-            <Menu.Item className="dark:text-white dark:hover:text-black">
+            <Menu.Item key="At the movies" className="dark:text-white dark:hover:text-black">
                 <p onClick={() => setStatus('At the movies')}>At the movies</p>
             </Menu.Item>
-            <Menu.Item className="dark:text-white dark:hover:text-black">
+            <Menu.Item key="Working from home" className="dark:text-white dark:hover:text-black">
                 <p onClick={() => setStatus('Working from home')}>Working from home</p>
             </Menu.Item>
         </Menu>
@@ -106,16 +108,16 @@ const SidePanel = ({
                 <div className="flex justify-between items-center py-2">
                     <div className="flex justify-start items-center">
                         <div className="border h-12 w-12 border-gray-400 dark:border-gray-800 rounded-full relative">
-                            {user?.details?.photo ? (
+                            {user?.photo ? (
                                 <img
                                     className="rounded-full h-12 w-12"
-                                    src={user?.details?.photo}
+                                    src={user?.photo}
                                     alt="user"
                                 />
                             ) : (
                                 <img
                                     className="rounded-full h-12 w-12"
-                                    src={`https://ui-avatars.com/api/?name=${user?.details?.name}`}
+                                    src={`https://ui-avatars.com/api/?name=${user?.name}`}
                                     alt="user"
                                 />
                             )}
@@ -136,7 +138,7 @@ const SidePanel = ({
                             </Dropdown>
                         </div>
                         <div className="pl-2">
-                            <p className="text-sm mb-0">{user?.details?.name}</p>
+                            <p className="text-sm mb-0">{user?.name}</p>
                             <Dropdown
                                 overlay={statusDropDown}
                                 placement="bottomRight"
@@ -176,35 +178,95 @@ const SidePanel = ({
 
                 {/* chat call notification navs */}
                 <div className="flex justify-between items-center mt-3">
-                    <div className="flex-col group justify-center items-center cursor-pointer text-center">
-                        <span className="border group-hover:text-white group-hover:border-purple-800 rounded-full p-2 group-hover:bg-purple-800 dark:group-hover:text-white dark:border-gray-800 material-icons-outlined text-xs transition-all ease-in-out">
+                    <div
+                        className="flex-col group justify-center items-center cursor-pointer text-center"
+                        onClick={() => setActiveNav('chat')}
+                    >
+                        <span
+                            className={`border ${
+                                activeNav === 'chat'
+                                    ? 'bg-blue-900 border-blue-800 text-white'
+                                    : 'group-hover:border-blue-800 group-hover:bg-blue-800'
+                            } group-hover:text-white  rounded-full p-2  dark:group-hover:text-white dark:border-gray-800 material-icons-outlined text-xs transition-all ease-in-out`}
+                        >
                             chat
                         </span>
-                        <p className="text-xs group-hover:text-purple-800 dark:group-hover:text-purple-300 dark:text-gray-200 text-gray-500 transition-all ease-in-out font-semibold pt-0">
+                        <p
+                            className={`text-xs ${
+                                activeNav === 'chat'
+                                    ? 'dark:text-blue-300 text-white'
+                                    : 'group-hover:text-blue-800 dark:group-hover:text-blue-300'
+                            }  dark:text-gray-200 text-gray-500 transition-all ease-in-out font-semibold pt-0`}
+                        >
                             Chats
                         </p>
                     </div>
-                    <div className="flex-col group justify-center items-center cursor-pointer text-center">
-                        <span className="border group-hover:text-white group-hover:border-purple-800 rounded-full p-2 group-hover:bg-purple-800 dark:group-hover:text-white dark:border-gray-800 material-icons-outlined text-xs transition-all ease-in-out">
+                    <div
+                        className="flex-col group justify-center items-center cursor-pointer text-center"
+                        onClick={() => setActiveNav('call')}
+                    >
+                        <span
+                            className={`border ${
+                                activeNav === 'call'
+                                    ? 'bg-blue-900 border-blue-800 text-white'
+                                    : 'group-hover:border-blue-800 group-hover:bg-blue-800'
+                            } group-hover:text-white  rounded-full p-2  dark:group-hover:text-white dark:border-gray-800 material-icons-outlined text-xs transition-all ease-in-out`}
+                        >
                             call
                         </span>
-                        <p className="text-xs group-hover:text-purple-800 dark:group-hover:text-purple-300 dark:text-gray-200 text-gray-500 transition-all ease-in-out font-semibold pt-0">
+                        <p
+                            className={`text-xs ${
+                                activeNav === 'call'
+                                    ? 'dark:text-blue-300 text-white'
+                                    : 'group-hover:text-blue-800 dark:group-hover:text-blue-300'
+                            }  dark:text-gray-200 text-gray-500 transition-all ease-in-out font-semibold pt-0`}
+                        >
                             Calls
                         </p>
                     </div>
-                    <div className="flex-col group justify-center items-center cursor-pointer text-center">
-                        <span className="border group-hover:text-white group-hover:border-purple-800 rounded-full p-2 group-hover:bg-purple-800 dark:group-hover:text-white dark:border-gray-800 material-icons-outlined text-xs transition-all ease-in-out">
+                    <div
+                        className="flex-col group justify-center items-center cursor-pointer text-center"
+                        onClick={() => setActiveNav('contacts')}
+                    >
+                        <span
+                            className={`border ${
+                                activeNav === 'contacts'
+                                    ? 'bg-blue-900 border-blue-800 text-white'
+                                    : 'group-hover:border-blue-800 group-hover:bg-blue-800'
+                            } group-hover:text-white  rounded-full p-2  dark:group-hover:text-white dark:border-gray-800 material-icons-outlined text-xs transition-all ease-in-out`}
+                        >
                             perm_contact_calendar
                         </span>
-                        <p className="text-xs group-hover:text-purple-800 dark:group-hover:text-purple-300 dark:text-gray-200 text-gray-500 transition-all ease-in-out font-semibold pt-0">
+                        <p
+                            className={`text-xs ${
+                                activeNav === 'contacts'
+                                    ? 'dark:text-blue-300 text-white'
+                                    : 'group-hover:text-blue-800 dark:group-hover:text-blue-300'
+                            }  dark:text-gray-200 text-gray-500 transition-all ease-in-out font-semibold pt-0`}
+                        >
                             Contacts
                         </p>
                     </div>
-                    <div className="flex-col group justify-center items-center cursor-pointer text-center">
-                        <span className="border group-hover:text-white group-hover:border-purple-800 rounded-full p-2 group-hover:bg-purple-800 dark:group-hover:text-white dark:border-gray-800 material-icons-outlined text-xs transition-all ease-in-out">
+                    <div
+                        className="flex-col group justify-center items-center cursor-pointer text-center"
+                        onClick={() => setActiveNav('notifications')}
+                    >
+                        <span
+                            className={`border ${
+                                activeNav === 'notifications'
+                                    ? 'bg-blue-900 border-blue-800 text-white'
+                                    : 'group-hover:border-blue-800 group-hover:bg-blue-800'
+                            } group-hover:text-white  rounded-full p-2  dark:group-hover:text-white dark:border-gray-800 material-icons-outlined text-xs transition-all ease-in-out`}
+                        >
                             notifications
                         </span>
-                        <p className="text-xs group-hover:text-purple-800 dark:group-hover:text-purple-300 dark:text-gray-200 text-gray-500 transition-all ease-in-out font-semibold pt-0">
+                        <p
+                            className={`text-xs ${
+                                activeNav === 'notifications'
+                                    ? 'dark:text-blue-300 text-white'
+                                    : 'group-hover:text-blue-800 dark:group-hover:text-blue-300'
+                            }  dark:text-gray-200 text-gray-500 transition-all ease-in-out font-semibold pt-0`}
+                        >
                             Notifications
                         </p>
                     </div>
@@ -232,17 +294,22 @@ const SidePanel = ({
                 className="overflow-y-auto mt-2 px-3 chatList"
                 style={{ maxHeight: featureHeight.current ? `${chatListHeight}` : 'auto' }}
             >
-                {[...Array(15)].map((_, index) => (
-                    <ChatUser
-                        key={index}
-                        image={`https://ui-avatars.com/api/?name=John+${index}`}
-                        name={'John ' + index}
-                        isActive={true}
-                        lastMsg="Call me back when you are free. Need to discuss about the project."
-                        time="4.22 PM"
-                        openUserChat={openUserChat}
-                    />
-                ))}
+                {userList &&
+                    userList.map((user) => (
+                        <ChatUser
+                            key={user._id}
+                            image={
+                                user.image
+                                    ? user.image
+                                    : `https://ui-avatars.com/api/?name=${user.name}`
+                            }
+                            name={user.name}
+                            isActive={user.isActive}
+                            lastMsg="Call me back when you are free. Need to discuss about the project."
+                            time="4.22 PM"
+                            openUserChat={openUserChat}
+                        />
+                    ))}
             </div>
         </div>
     );

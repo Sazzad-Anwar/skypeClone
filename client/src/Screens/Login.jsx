@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import DarkModeToggler from '../Components/DarkModeToggler';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../Redux/Actions/LoginAction';
 
 const Login = () => {
@@ -10,6 +10,7 @@ const Login = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
+    const user = useSelector((state) => state.user);
 
     const {
         register,
@@ -20,11 +21,13 @@ const Login = () => {
 
     let from = location.state?.from?.pathname || '/dashboard';
 
+    console.log(user && user.details);
+
     useEffect(() => {
-        if (localStorage.getItem('token')) {
+        if (user && user.details) {
             navigate(from);
         }
-    }, [navigate, from]);
+    }, [navigate, from, user]);
 
     const onSubmit = (data) => {
         dispatch(login(data));
