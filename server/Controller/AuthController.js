@@ -34,9 +34,9 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const register = asyncHandler(async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone } = req.body;
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !phone) {
         res.status(400).json({
             success: false,
             error: 'Please provide all required fields'
@@ -50,7 +50,7 @@ const register = asyncHandler(async (req, res) => {
                 error: 'User already exists'
             });
         } else {
-            const newUser = await User.create({ name, email, password });
+            const newUser = await User.create({ name, email, password, phone });
 
             const token = jwt.sign({ details: { _id: newUser._id } }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
 

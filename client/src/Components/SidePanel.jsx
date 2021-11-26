@@ -12,6 +12,7 @@ const SidePanel = ({
     chatListHeight,
     openUserChat,
     userList,
+    chattingUser,
 }) => {
     const [status, setStatus] = useState('Active');
     const [onlineStatus, setOnlineStatus] = useState('active');
@@ -107,16 +108,16 @@ const SidePanel = ({
                 {/* skype profile */}
                 <div className="flex justify-between items-center py-2">
                     <div className="flex justify-start items-center">
-                        <div className="border h-12 w-12 border-gray-400 dark:border-gray-800 rounded-full relative">
+                        <div className="border h-10 w-10 border-gray-400 dark:border-gray-800 rounded-full relative">
                             {user?.photo ? (
                                 <img
-                                    className="rounded-full h-12 w-12"
+                                    className="rounded-full h-10 w-10"
                                     src={user?.photo}
                                     alt="user"
                                 />
                             ) : (
                                 <img
-                                    className="rounded-full h-12 w-12"
+                                    className="rounded-full h-10 w-10"
                                     src={`https://ui-avatars.com/api/?name=${user?.name}`}
                                     alt="user"
                                 />
@@ -138,7 +139,7 @@ const SidePanel = ({
                             </Dropdown>
                         </div>
                         <div className="pl-2">
-                            <p className="text-sm mb-0">{user?.name}</p>
+                            <p className="text-sm mb-0 truncate w-32">{user?.name}</p>
                             <Dropdown
                                 overlay={statusDropDown}
                                 placement="bottomRight"
@@ -303,10 +304,8 @@ const SidePanel = ({
                                     ? user.image
                                     : `https://ui-avatars.com/api/?name=${user.name}`
                             }
-                            name={user.name}
-                            isActive={user.isActive}
-                            lastMsg="Call me back when you are free. Need to discuss about the project."
-                            time="4.22 PM"
+                            chattingUser={chattingUser}
+                            userDetails={user}
                             openUserChat={openUserChat}
                         />
                     ))}

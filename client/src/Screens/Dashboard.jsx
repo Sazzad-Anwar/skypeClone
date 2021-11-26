@@ -19,6 +19,7 @@ const Dashboard = () => {
     const dispatch = useDispatch();
     const featureHeight = useRef(null);
     const [userList, setUserList] = useState([]);
+    const [chattingUserDetails, setChattingUserDetails] = useState({});
 
     useEffect(() => {
         if (featureHeight.current) {
@@ -88,6 +89,10 @@ const Dashboard = () => {
         setShowFiles(!showFiles);
     };
 
+    const chattingUser = (user) => {
+        setChattingUserDetails(userList.find((u) => u._id === user._id));
+    };
+
     return (
         <div className="flex-col lg:flex-row flex overflow-hidden">
             {isMobileWidth && !userChatOpen ? (
@@ -99,6 +104,7 @@ const Dashboard = () => {
                     chatListHeight={chatListHeight}
                     openUserChat={openUserChat}
                     userList={userList}
+                    chattingUser={chattingUser}
                 />
             ) : !isMobileWidth ? (
                 <SidePanel
@@ -109,6 +115,7 @@ const Dashboard = () => {
                     chatListHeight={chatListHeight}
                     openUserChat={openUserChat}
                     userList={userList}
+                    chattingUser={chattingUser}
                 />
             ) : null}
 
@@ -116,8 +123,7 @@ const Dashboard = () => {
                 <div className="w-screen h-screen dark:bg-black dark:text-white">
                     {userChatOpen ? (
                         <Chatting
-                            image={`https://ui-avatars.com/api/?name=John+Doe`}
-                            name={'John Doe'}
+                            chattingUser={chattingUserDetails}
                             isActive={true}
                             openUserChat={openUserChat}
                             closeUserChat={closeUserChat}
@@ -130,8 +136,7 @@ const Dashboard = () => {
                 <div className="w-screen h-screen dark:bg-black dark:text-white">
                     {userChatOpen ? (
                         <Chatting
-                            image={`https://ui-avatars.com/api/?name=John+Doe`}
-                            name={'John Doe'}
+                            chattingUser={chattingUserDetails}
                             isActive={true}
                             toggleRightSidePanel={toggleRightSidePanel}
                         />

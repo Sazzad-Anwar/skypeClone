@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import DarkModeToggler from '../Components/DarkModeToggler';
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../Redux/Actions/LoginAction';
@@ -15,13 +15,10 @@ const Login = () => {
     const {
         register,
         handleSubmit,
-        control,
         formState: { errors },
     } = useForm();
 
     let from = location.state?.from?.pathname || '/dashboard';
-
-    console.log(user && user.details);
 
     useEffect(() => {
         if (user && user.details) {
@@ -35,84 +32,86 @@ const Login = () => {
     };
 
     return (
-        <div className="dark:bg-gray-900 bg-white h-screen w-screen dark:text-white flex justify-center items-center">
-            <div className="mx-2 lg:mx-0 bg-white lg:w-96 shadow-2xl p-9 border border-gray-200 dark:border-gray-900 rounded-xl dark:bg-gray-800">
-                <div className="flex justify-end items-center">
-                    <DarkModeToggler />
-                </div>
+        <div className="dark:bg-gray-900 bg-white px-4 md:px-0 h-screen w-screen dark:text-white flex justify-center items-center lg:items-start lg:pt-56">
+            <div>
                 <div className="flex justify-center items-center mb-6">
-                    <img className="h-20" src="/logo.png" alt="logo" />
-                </div>
-                <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
-                    <Controller
-                        {...register('email', { required: true })}
-                        control={control}
-                        render={({ field }) => (
-                            <div
-                                className={`flex px-2 h-11 items-center border ${
-                                    errors.email
-                                        ? 'border-red-500'
-                                        : 'border-gray-400 dark:border-gray-900'
-                                } rounded-lg mt-4 mb-2`}
-                            >
-                                <span className="material-icons-outlined mr-2">email</span>
-                                <input
-                                    type="email"
-                                    {...field}
-                                    className="dark:text-white w-full dark:bg-gray-800 focus:outline-none"
-                                    placeholder="Your Email"
-                                />
-                            </div>
-                        )}
+                    <img
+                        className=""
+                        src="https://logincdn.msauth.net/shared/1.0/content/images/applogos/44_08ed657e48f1458641b5f879d82004cd.png"
+                        alt="logo"
                     />
-                    {errors.email && <p className="text-red-500 mb-2">Email is required</p>}
+                </div>
 
-                    <Controller
-                        {...register('password', { required: true, min: 6 })}
-                        control={control}
-                        render={({ field }) => (
-                            <div
-                                className={`flex px-2 h-11 items-center border ${
-                                    errors.password
-                                        ? 'border-red-500'
-                                        : 'border-gray-400 dark:border-gray-900'
-                                } rounded-lg mt-4 mb-2`}
-                            >
-                                <span className="material-icons-outlined mr-2">vpn_key</span>
+                <div className="bg-white shadow-md px-11 lg:mx-0 w-full sm:w-96  py-12 border border-gray-200 dark:border-gray-900 dark:bg-gray-800 relative">
+                    <div className="absolute right-2 top-2">
+                        <DarkModeToggler />
+                    </div>
+                    <img
+                        className="mb-4"
+                        src="https://logincdn.msauth.net/shared/1.0/content/images/microsoft_logo_ee5c8d9fb6248c938fd0dc19370e90bd.svg"
+                        alt="mircrosoft"
+                    />
+                    <h1 className="text-2xl font-semibold dark:text-white ">Sign in</h1>
+                    <p>to continue to skype</p>
+                    <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+                        <div className="mt-6 mb-4">
+                            <input
+                                {...register('email', { required: true })}
+                                type="email"
+                                className={`focus:outline-none dark:bg-gray-800 ${
+                                    errors.email
+                                        ? 'focus:border-red-500 dark:focus:border-red-500'
+                                        : 'focus:border-blue-500'
+                                }  border-black dark:border-gray-400 transition duration-200 ease-in-out border-b w-full pb-2 text-sm`}
+                                placeholder="Email"
+                            />
+                            {errors.email && <p className="text-red-500 my-2">Email is required</p>}
+                        </div>
+
+                        <div className="mb-4 relative">
+                            <div className={`flex items-center justify-between  w-full pb-1`}>
                                 <input
-                                    {...field}
+                                    {...register('password', { required: true })}
                                     type={showPass ? 'text' : 'password'}
-                                    className="dark:text-white w-full dark:bg-gray-800 focus:outline-none"
+                                    className={`focus:outline-none dark:bg-gray-800 pr-6 ${
+                                        errors.password
+                                            ? 'focus:border-red-500 dark:focus:border-red-500'
+                                            : 'focus:border-blue-500'
+                                    }  border-black dark:border-gray-400 transition duration-200 ease-in-out border-b w-full pb-2 text-sm`}
                                     placeholder="Password"
                                 />
-                                <span
-                                    className="material-icons-outlined mr-2 cursor-pointer"
-                                    onClick={() => setShowPass(!showPass)}
-                                >
-                                    {showPass ? 'visibility_off' : 'visibility'}
-                                </span>
+                                <div className="absolute right-0 cursor-pointer">
+                                    <span
+                                        className="material-icons-outlined mr-2"
+                                        onClick={() => setShowPass(!showPass)}
+                                    >
+                                        {showPass ? 'visibility_off' : 'visibility'}
+                                    </span>
+                                </div>
                             </div>
-                        )}
-                    />
-                    {errors.password && <p className="text-red-500 mb-2">Password is required</p>}
-
-                    <button
-                        className="h-11 border hover:text-white border-gray-400 dark:border-gray-900 rounded-lg w-full hover:bg-gray-900 transition-all ease-in-out"
-                        type="submit"
-                    >
-                        Login
-                    </button>
-
-                    <div className="flex justify-between items-center my-4">
-                        <p>Not have account?</p>
-                        <Link
-                            to="/registration"
-                            className="hover:text-gray-600 dark:hover:text-gray-300 dark:text-white transition-all ease-in-out"
-                        >
-                            Sign Up
-                        </Link>
-                    </div>
-                </form>
+                            {errors.password && (
+                                <p className="text-red-500 my-2">Password is required</p>
+                            )}
+                        </div>
+                        <div className="flex">
+                            <p className="dark:text-white">No account?</p>
+                            <Link
+                                to="/registration"
+                                className="ml-2 text-blue-500 hover:text-gray-600 dark:hover:text-white"
+                            >
+                                Create One
+                            </Link>
+                        </div>
+                        <div className="flex justify-end mt-4">
+                            <button
+                                type="submit"
+                                className="px-9 py-1.5 hover:bg-blue-900 bg-blue-800 transition duration-200 ease-in-out text-white "
+                            >
+                                Go
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

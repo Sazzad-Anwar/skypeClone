@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const ChatUser = ({ image, name, isActive, time, lastMsg, openUserChat }) => {
+const ChatUser = ({ userDetails, openUserChat, chattingUser }) => {
     const [activeChat, setActiveChat] = useState(false);
 
     return (
@@ -11,14 +11,23 @@ const ChatUser = ({ image, name, isActive, time, lastMsg, openUserChat }) => {
             onClick={() => {
                 openUserChat();
                 setActiveChat(!activeChat);
+                chattingUser(userDetails);
             }}
         >
             <div className="flex justify-start items-center">
                 <div className="border h-12 w-12 border-gray-400 dark:border-gray-800 rounded-full relative">
-                    <img className="rounded-full" src={image} alt="user" />
+                    <img
+                        className="rounded-full"
+                        src={
+                            userDetails.image
+                                ? userDetails.image
+                                : `https://ui-avatars.com/api/?name=${userDetails.name}`
+                        }
+                        alt="user"
+                    />
                     <div
                         className={`absolute bottom-0 right-0 border rounded-full h-3 w-3 ${
-                            isActive ? 'bg-green-500' : 'bg-yellow-500'
+                            userDetails.isActive ? 'bg-green-500' : 'bg-yellow-500'
                         }`}
                     ></div>
                 </div>
@@ -26,16 +35,16 @@ const ChatUser = ({ image, name, isActive, time, lastMsg, openUserChat }) => {
                     <p
                         className={`mb-0 text-sm text-black group-hover:text-white ${
                             activeChat ? 'text-white' : ''
-                        } dark:text-white`}
+                        } dark:text-white truncate w-36`}
                     >
-                        {name}
+                        {userDetails.name}
                     </p>
                     <p
                         className={`mb-0 text-xs group-hover:text-white dark:text-gray-200 ${
                             activeChat ? 'text-white' : ''
                         } text-gray-500 font-semibold pt-1 w-44 cursor-pointer truncate`}
                     >
-                        {lastMsg}
+                        {`Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit, soluta.`}
                     </p>
                 </div>
             </div>
@@ -45,7 +54,7 @@ const ChatUser = ({ image, name, isActive, time, lastMsg, openUserChat }) => {
                         activeChat ? 'text-white' : ''
                     } dark:text-white w-14`}
                 >
-                    {time}
+                    {new Date().toLocaleTimeString()}
                 </div>
                 <div
                     className={`bg-blue-700 text-white h-5 w-5 rounded-full mx-auto text-center mt-2`}

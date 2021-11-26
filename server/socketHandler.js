@@ -32,7 +32,7 @@ const socketHandler = (io, socket) => {
         await User.findOneAndUpdate({ socketId: socket.id }, { $set: { socketId: null, isActive: false } }, { new: true }).select('-password')
 
         //Remove the user from the users array
-        users = users.filter(u => u.socketId !== socket.id);
+        users = users.filter(u => u?.socketId !== socket.id);
 
         //Broadcast the user array to all the users
         io.emit("user-connected", users);

@@ -8,6 +8,7 @@ const Chatting = ({
     closeUserChat,
     isMobileWidth,
     toggleRightSidePanel,
+    chattingUser,
 }) => {
     return (
         <div className="w-full h-screen dark:bg-black p-4">
@@ -15,6 +16,7 @@ const Chatting = ({
                 image={image}
                 isActive={isActive}
                 name={name}
+                chattingUser={chattingUser}
                 closeUserChat={closeUserChat}
                 isMobileWidth={isMobileWidth}
                 toggleRightSidePanel={toggleRightSidePanel}
