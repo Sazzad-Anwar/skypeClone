@@ -1,7 +1,8 @@
 import { useState } from 'react';
 
-const ChatUser = ({ userDetails, openUserChat, chattingUser }) => {
+const ChatUser = ({ userDetails, openUserChat, chattingUser, userMessage }) => {
     const [activeChat, setActiveChat] = useState(false);
+    const [showMessageCount, setShowMessageCount] = useState(true);
 
     return (
         <div
@@ -12,6 +13,7 @@ const ChatUser = ({ userDetails, openUserChat, chattingUser }) => {
                 openUserChat();
                 setActiveChat(!activeChat);
                 chattingUser(userDetails);
+                setShowMessageCount(false);
             }}
         >
             <div className="flex justify-start items-center">
@@ -39,29 +41,40 @@ const ChatUser = ({ userDetails, openUserChat, chattingUser }) => {
                     >
                         {userDetails.name}
                     </p>
-                    <p
-                        className={`mb-0 text-xs group-hover:text-white dark:text-gray-200 ${
+                    {userMessage.length !== 0 && (
+                        <p
+                            className={`mb-0 text-xs group-hover:text-white dark:text-gray-200 ${
+                                activeChat ? 'text-white' : ''
+                            } text-gray-500 font-semibold pt-1 w-44 cursor-pointer truncate`}
+                        >
+                            {userMessage[userMessage.length - 1]?.message}
+                        </p>
+                    )}
+                </div>
+            </div>
+            {userMessage.length !== 0 && (
+                <div>
+                    <div
+                        className={`text-xs group-hover:text-white text-black ${
                             activeChat ? 'text-white' : ''
-                        } text-gray-500 font-semibold pt-1 w-44 cursor-pointer truncate`}
+                        } dark:text-white w-14`}
                     >
-                        {`Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit, soluta.`}
-                    </p>
+                        {new Date(
+                            userMessage[userMessage.length - 1]?.updatedAt,
+                        ).toLocaleTimeString('en-Us', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        })}
+                    </div>
+                    {showMessageCount && (
+                        <div
+                            className={`bg-blue-700 text-white h-5 w-5 rounded-full mx-auto text-center mt-2`}
+                        >
+                            {userMessage?.length}
+                        </div>
+                    )}
                 </div>
-            </div>
-            <div>
-                <div
-                    className={`text-xs group-hover:text-white text-black ${
-                        activeChat ? 'text-white' : ''
-                    } dark:text-white w-14`}
-                >
-                    {new Date().toLocaleTimeString()}
-                </div>
-                <div
-                    className={`bg-blue-700 text-white h-5 w-5 rounded-full mx-auto text-center mt-2`}
-                >
-                    2
-                </div>
-            </div>
+            )}
         </div>
     );
 };

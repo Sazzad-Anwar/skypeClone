@@ -1,23 +1,51 @@
 import { Dropdown, Menu } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ChatUser from './ChatUser';
 import DarkModeToggler from './DarkModeToggler';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+// import { SocketContext } from './Socket';
 
 const SidePanel = ({
-    dispatch,
     logOut,
     featureHeight,
-    user,
     chatListHeight,
+    chatUsers,
     openUserChat,
-    userList,
     chattingUser,
 }) => {
     const [status, setStatus] = useState('Active');
     const [onlineStatus, setOnlineStatus] = useState('active');
     const [activeNav, setActiveNav] = useState('chat');
     const navigate = useNavigate();
+    const { details } = useSelector((state) => state.details);
+    // const socket = useContext(SocketContext);
+    const socket = useSelector((state) => state.socket);
+    const dispatch = useDispatch();
+    // const messages = useSelector((state) => state.messages);
+    const [messageList, setMessageList] = useState([]);
+
+    useEffect(() => {
+        let audio = new Audio('/message.mp3');
+        if (Object.keys(socket).length) {
+            socket.on('messageSent', (message) => {
+                if (
+                    (details && details.email === message.receiver) ||
+                    (details && details.email === message.sender)
+                ) {
+                    setMessageList((prevChatList) => [...prevChatList, message]);
+                    if (details && details.email === message.receiver) {
+                        audio.play();
+                    }
+                    // audio.play();
+                }
+            });
+            return () => {
+                socket.off();
+            };
+        }
+    }, [details, socket]);
 
     const menu = (
         <Menu className="dark:bg-gray-800">
@@ -109,16 +137,16 @@ const SidePanel = ({
                 <div className="flex justify-between items-center py-2">
                     <div className="flex justify-start items-center">
                         <div className="border h-10 w-10 border-gray-400 dark:border-gray-800 rounded-full relative">
-                            {user?.photo ? (
+                            {details?.photo ? (
                                 <img
                                     className="rounded-full h-10 w-10"
-                                    src={user?.photo}
+                                    src={details?.photo}
                                     alt="user"
                                 />
                             ) : (
                                 <img
                                     className="rounded-full h-10 w-10"
-                                    src={`https://ui-avatars.com/api/?name=${user?.name}`}
+                                    src={`https://ui-avatars.com/api/?name=${details?.name}`}
                                     alt="user"
                                 />
                             )}
@@ -139,7 +167,7 @@ const SidePanel = ({
                             </Dropdown>
                         </div>
                         <div className="pl-2">
-                            <p className="text-sm mb-0 truncate w-32">{user?.name}</p>
+                            <p className="text-sm mb-0 truncate w-32">{details?.name}</p>
                             <Dropdown
                                 overlay={statusDropDown}
                                 placement="bottomRight"
@@ -295,8 +323,8 @@ const SidePanel = ({
                 className="overflow-y-auto mt-2 px-3 chatList"
                 style={{ maxHeight: featureHeight.current ? `${chatListHeight}` : 'auto' }}
             >
-                {userList &&
-                    userList.map((user) => (
+                {chatUsers &&
+                    chatUsers.map((user) => (
                         <ChatUser
                             key={user._id}
                             image={
@@ -306,6 +334,7 @@ const SidePanel = ({
                             }
                             chattingUser={chattingUser}
                             userDetails={user}
+                            userMessage={messageList && messageList}
                             openUserChat={openUserChat}
                         />
                     ))}

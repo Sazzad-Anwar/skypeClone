@@ -8,6 +8,7 @@ import { Provider } from 'react-redux';
 import * as ServiceWorkerRegistration from './serviceWorkerRegistration';
 import store from './Redux/store';
 
+
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>

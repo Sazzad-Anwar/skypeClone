@@ -22,13 +22,9 @@ export const login = (postData) => async (dispatch) => {
 
         let user = jwt_decode(token);
 
-        let {
-            data: { data },
-        } = await axios.get(`/api/v1/user/${user.details._id}`);
-
         dispatch({
             type: LOGIN_REQUEST_SUCCESS,
-            payload: data,
+            payload: user,
         });
 
         localStorage.setItem('token', JSON.stringify(token));

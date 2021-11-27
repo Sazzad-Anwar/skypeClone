@@ -47,7 +47,7 @@ const Registration = () => {
                     />
                 </div>
 
-                <div className="bg-white shadow-md px-11 mx-2 lg:mx-0 lg:w-96  py-12 border border-gray-200 dark:border-gray-900 dark:bg-gray-800 relative">
+                <div className="bg-white shadow-md px-11 mx-2 lg:mx-0 w-screen lg:w-96  py-12 border border-gray-200 dark:border-gray-900 dark:bg-gray-800 relative">
                     <div className="absolute right-2 top-2">
                         <DarkModeToggler />
                     </div>

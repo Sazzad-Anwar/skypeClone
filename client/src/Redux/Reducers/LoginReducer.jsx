@@ -13,7 +13,7 @@ export const loginReducer = (state = {}, action) => {
         case LOGIN_REQUEST:
             return { isLoading: true };
         case LOGIN_REQUEST_SUCCESS:
-            return { isLoading: false, details: action.payload };
+            return action.payload;
         case LOGIN_REQUEST_FAILED:
             return { isLoading: false, error: action.payload };
         case LOGOUT:
@@ -28,7 +28,7 @@ export const registerReducer = (state = {}, action) => {
         case REGISTRATION_REQUEST:
             return { isLoading: true };
         case REGISTRATION_REQUEST_SUCCESS:
-            return { isLoading: false, details: action.payload };
+            return action.payload;
         case REGISTRATION_REQUEST_FAILED:
             return { isLoading: false, error: action.payload };
         default:

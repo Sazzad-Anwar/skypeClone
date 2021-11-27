@@ -1,4 +1,3 @@
-import { io } from 'socket.io-client';
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logOut } from '../Redux/Actions/LoginAction';
@@ -7,15 +6,21 @@ import Chatting from './../Components/Chatting';
 import SidePanel from '../Components/SidePanel';
 import RightSidePanel from '../Components/RightSidePanel';
 import { userDetails } from './../Redux/Actions/UserAction';
+import { chatUsersAction } from './../Redux/Actions/ChatUsersAction';
+// import { io } from 'socket.io-client';
+// import { SocketContext } from '../Components/Socket';
+import { socketAction } from '../Components/socketRedux';
 
 const Dashboard = () => {
-    const socket = useRef(null);
     const [chatListHeight, setChatListHeight] = useState(0);
     const [userChatOpen, setUserChatOpen] = useState(false);
     const [isMobileWidth, setIsMobileWidth] = useState(false);
     const [showFiles, setShowFiles] = useState(false);
     const user = useSelector((state) => state.user);
     const details = useSelector((state) => state.details);
+    // const socket = useContext(SocketContext);
+    // const socket = useRef(null);
+    const socket = useSelector((state) => state.socket);
     const dispatch = useDispatch();
     const featureHeight = useRef(null);
     const [userList, setUserList] = useState([]);
@@ -44,38 +49,49 @@ const Dashboard = () => {
             }
         });
 
-        dispatch(userDetails(user?.details?._id));
-    }, [dispatch, user?.details?._id]);
+        dispatch(userDetails(user?._id));
+        dispatch(socketAction());
+    }, [dispatch, user._id]);
 
     //*---- Socket connections ----*//
     useEffect(() => {
         //initialize socket
-        socket.current = io('/');
-
-        //On connection to server the user id will be sent to server and the user will be added to the user list
-        socket.current.on('connect', () => {
+        // socket.current = io('/');
+        if (Object.keys(socket).length) {
+            //On connection to server the user id will be sent to server and the user will be added to the user list
+            // socket.on('connect', () => {
             // the user id is sent to the server while connected
-            socket.current.emit('new-user', { _id: user?.details?._id });
-        });
+            socket.emit('new-user', { _id: user._id });
+            // });
 
-        return () => {
-            //disconnect socket connection on component unmount
-            socket.current.disconnect();
-        };
-    }, [socket, user?.details?._id]);
+            return () => {
+                //disconnect socket connection on component unmount
+                socket.disconnect();
+            };
+        }
+    }, [dispatch, socket, user._id]);
 
     useEffect(() => {
         //listen for new user list when a new user joins
-        socket.current.on('user-connected', (users) => {
-            //filter the user list to remove the current user
-            setUserList(users.filter((u) => u._id !== user?.details?._id));
-        });
+        if (Object.keys(socket).length) {
+            socket.on('user-connected', (users) => {
+                //filter the user list to remove the current user
+                setUserList(users.filter((u) => u._id !== user._id));
 
-        return () => {
-            //disconnect socket connection on component unmount
-            socket.current.off();
-        };
-    }, [user?.details?._id, userList]);
+                //Add and update the userlist to the redux store
+                dispatch(chatUsersAction(users.filter((u) => u._id !== user._id)));
+
+                if (!users.filter((u) => u._id === chattingUserDetails?._id).length) {
+                    setUserChatOpen(false);
+                }
+            });
+
+            return () => {
+                //disconnect socket connection on component unmount
+                socket.off();
+            };
+        }
+    }, [chattingUserDetails, dispatch, socket, user._id]);
 
     // open a user chat
     const openUserChat = (userId) => {
@@ -99,22 +115,20 @@ const Dashboard = () => {
                 <SidePanel
                     dispatch={dispatch}
                     logOut={logOut}
+                    chatUsers={userList}
                     featureHeight={featureHeight}
-                    user={details}
                     chatListHeight={chatListHeight}
                     openUserChat={openUserChat}
-                    userList={userList}
                     chattingUser={chattingUser}
                 />
             ) : !isMobileWidth ? (
                 <SidePanel
                     dispatch={dispatch}
                     logOut={logOut}
+                    chatUsers={userList}
                     featureHeight={featureHeight}
-                    user={details?.details}
                     chatListHeight={chatListHeight}
                     openUserChat={openUserChat}
-                    userList={userList}
                     chattingUser={chattingUser}
                 />
             ) : null}
@@ -124,7 +138,6 @@ const Dashboard = () => {
                     {userChatOpen ? (
                         <Chatting
                             chattingUser={chattingUserDetails}
-                            isActive={true}
                             openUserChat={openUserChat}
                             closeUserChat={closeUserChat}
                         />
@@ -137,7 +150,6 @@ const Dashboard = () => {
                     {userChatOpen ? (
                         <Chatting
                             chattingUser={chattingUserDetails}
-                            isActive={true}
                             toggleRightSidePanel={toggleRightSidePanel}
                         />
                     ) : (

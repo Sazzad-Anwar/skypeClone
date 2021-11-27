@@ -1,5 +1,6 @@
 const axios = require("axios");
 const User = require("./Model/UserModel");
+const Message = require("./Model/Message");
 
 let users = [];
 
@@ -10,7 +11,7 @@ const socketHandler = (io, socket) => {
 
     //when in client side a user logs in and be online then the user will be added to the users array and the array will broadcast to all the users
     socket.on('new-user', async (data) => {
-
+        console.log(data)
         //Get the user details from the database using the user id and update his socket id and active status
         let user = await User.findOneAndUpdate({ _id: data._id }, { $set: { socketId: socket.id, isActive: true } }, { new: true }).select('-password');
 
@@ -22,6 +23,32 @@ const socketHandler = (io, socket) => {
             io.emit("user-connected", (users));
         }
     })
+
+    //Receiving a message from the client side
+    socket.on('message', async (messageObject) => {
+
+        //Descrtructuring the message object
+        let { sender, receiver, message, file, replyTo, socketId } = messageObject;
+
+        //Save the message to the database
+        let newMessage = new Message({ sender, receiver, message, file, replyTo })
+        let savedMessage = await newMessage.save();
+        //Broadcast the message to the users
+        io.to(socketId).emit("message", savedMessage);
+        //Broadcast the message to all the users
+        io.emit("messageSent", savedMessage);
+    })
+
+    //Get user's all chat
+    socket.on('get-chat', async ({ sender, receiver }) => {
+
+        //Get the chat between the sender and receiver from database
+        let chat = await Message.find({ $or: [{ sender, receiver }, { sender: receiver, receiver: sender }] })
+
+        //Broadcast the chat to the user
+        socket.emit("chat", chat);
+
+    });
 
     socket.on("disconnect", async () => {
 

@@ -21,14 +21,14 @@ const Login = () => {
     let from = location.state?.from?.pathname || '/dashboard';
 
     useEffect(() => {
-        if (user && user.details) {
-            navigate(from);
+        if (user && user._id) {
+            navigate(from, { replace: true });
         }
     }, [navigate, from, user]);
 
-    const onSubmit = (data) => {
+    const loginData = (data) => {
         dispatch(login(data));
-        navigate(from);
+        navigate(from, { replace: true });
     };
 
     return (
@@ -42,7 +42,7 @@ const Login = () => {
                     />
                 </div>
 
-                <div className="bg-white shadow-md px-11 lg:mx-0 w-full sm:w-96  py-12 border border-gray-200 dark:border-gray-900 dark:bg-gray-800 relative">
+                <div className="bg-white shadow-md px-11 lg:mx-0 w-screen sm:w-96  py-12 border border-gray-200 dark:border-gray-900 dark:bg-gray-800 relative">
                     <div className="absolute right-2 top-2">
                         <DarkModeToggler />
                     </div>
@@ -53,7 +53,7 @@ const Login = () => {
                     />
                     <h1 className="text-2xl font-semibold dark:text-white ">Sign in</h1>
                     <p>to continue to skype</p>
-                    <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+                    <form onSubmit={handleSubmit(loginData)} autoComplete="off">
                         <div className="mt-6 mb-4">
                             <input
                                 {...register('email', { required: true })}
@@ -93,6 +93,9 @@ const Login = () => {
                                 <p className="text-red-500 my-2">Password is required</p>
                             )}
                         </div>
+                        {user && user.error && (
+                            <p className="bg-red-800 text-white py-2 text-center">{user.error}</p>
+                        )}
                         <div className="flex">
                             <p className="dark:text-white">No account?</p>
                             <Link

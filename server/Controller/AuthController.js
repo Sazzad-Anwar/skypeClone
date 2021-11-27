@@ -11,25 +11,28 @@ const login = asyncHandler(async (req, res) => {
     if (!user) {
         res.status(401).json({
             success: false,
-            error: 'Invalid credentials'
+            message: 'Invalid credentials'
         });
+    } else {
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+            res.status(401).json({
+                success: false,
+                message: 'Invalid credentials'
+            });
+        } else {
+
+            user.socketId = socketId;
+            user.isActive = true;
+            await user.save();
+
+            const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
+
+            res.status(200).json({ success: true, token });
+        }
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-        res.status(401).json({
-            success: false,
-            error: 'Invalid credentials'
-        });
-    }
-    user.socketId = socketId;
-    user.isActive = true;
-    await user.save();
-
-    const token = jwt.sign({ details: { _id: user._id } }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
-
-    res.status(200).json({ success: true, token });
 
 });
 
@@ -39,7 +42,7 @@ const register = asyncHandler(async (req, res) => {
     if (!name || !email || !password || !phone) {
         res.status(400).json({
             success: false,
-            error: 'Please provide all required fields'
+            message: 'Please provide all required fields'
         });
     } else {
         const user = await User.findOne({ email });
@@ -47,12 +50,12 @@ const register = asyncHandler(async (req, res) => {
         if (user) {
             res.status(400).json({
                 success: false,
-                error: 'User already exists'
+                message: 'User already exists'
             });
         } else {
             const newUser = await User.create({ name, email, password, phone });
 
-            const token = jwt.sign({ details: { _id: newUser._id } }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
+            const token = jwt.sign({ _id: newUser._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
 
             res.status(200).json({ success: true, token });
         }

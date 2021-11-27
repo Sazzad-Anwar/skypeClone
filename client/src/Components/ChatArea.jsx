@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import { Menu, Dropdown, Input, Modal, Upload } from 'antd';
+import { Menu, Dropdown, Input, Modal, Upload, message as antMessage } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Picker from 'emoji-picker-react';
+// import { messagesAction } from '../Redux/Actions/MessageActions';
+// import { SocketContext } from './Socket';
+
 const { TextArea } = Input;
 
-const ChatArea = ({ image, isActive, name }) => {
+const ChatArea = ({ chattingUser }) => {
     const chatAreaWidth = useRef(0);
     const textArea = useRef(0);
     const bottomAreaHeight = useRef(0);
+    const dispatch = useDispatch();
     const lastMessage = useRef(null);
     const [pickFile, setPickFile] = useState(false);
     const [inputTextWidth, setInputTextWidth] = useState(0);
@@ -17,14 +21,14 @@ const ChatArea = ({ image, isActive, name }) => {
     const [message, setMessage] = useState('');
     const [isMobileWidth, setIsMobileWidth] = useState(false);
     const [showPicker, setShowPicker] = useState(false);
-    const user = useSelector((state) => state.user);
+    const { details } = useSelector((state) => state.details);
+    // const socket = useContext(SocketContext);
+    const socket = useSelector((state) => state.socket);
     const [chatList, setChatList] = useState([]);
     const [fileList, setFileList] = useState([]);
     const [previewVisible, setPreviewVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
-
-    let audio = new Audio('/message.mp3');
 
     useEffect(() => {
         setInputTextWidth(chatAreaWidth.current.offsetWidth);
@@ -52,36 +56,49 @@ const ChatArea = ({ image, isActive, name }) => {
         setMessage((prevInput) => prevInput + emojiObject.emoji);
     };
 
+    useEffect(() => {
+        socket.on('message', (message) => {
+            setChatList((prevChatList) => [...prevChatList, message]);
+            // dispatch(messagesAction([...chatList, message]));
+        });
+
+        return () => {
+            socket.off();
+        };
+    }, [chatList, dispatch, socket]);
+
+    useEffect(() => {
+        socket.on('chat', (chats) => {
+            setChatList(chats);
+            // dispatch(messagesAction(chats));
+        });
+
+        socket.emit('get-chat', { sender: chattingUser.email, receiver: details.email });
+
+        return () => {
+            socket.off();
+        };
+    }, [chattingUser.email, details.email, socket]);
+
     //send message handler
     const messageSendHandler = () => {
         if (message.trim() !== '') {
-            setChatList((previous) => [
-                ...previous,
-                {
-                    from: 'Sazzad',
-                    message: message,
-                    timestamp: new Date().toLocaleDateString('en-US', {
-                        hour: 'numeric',
-                        minute: 'numeric',
-                    }),
-                },
-            ]);
+            let messageDetails = {
+                sender: details?.email,
+                receiver: chattingUser.email,
+                socketId: chattingUser.socketId,
+                message: message,
+                file: '',
+                replyTo: '',
+                updatedAt: new Date().toLocaleDateString('en-US', {
+                    hour: 'numeric',
+                    minute: 'numeric',
+                }),
+            };
+            setChatList((previous) => [...previous, messageDetails]);
+            // dispatch(messagesAction([...chatList, messageDetails]));
             setMessage('');
-
-            setTimeout(() => {
-                setChatList((previous) => [
-                    ...previous,
-                    {
-                        from: 'John Doe',
-                        message: message,
-                        timestamp: new Date().toLocaleDateString('en-US', {
-                            hour: 'numeric',
-                            minute: 'numeric',
-                        }),
-                    },
-                ]);
-                audio.play();
-            }, 2000);
+            socket.emit('message', messageDetails);
         }
     };
 
@@ -114,23 +131,11 @@ const ChatArea = ({ image, isActive, name }) => {
         </Menu>
     );
 
-    // dropdown menu for chat
-    const messageOptions = (
-        <Menu className="dark:bg-gray-800">
-            <Menu.Item className="dark:text-white dark:hover:text-black" key="1">
-                Copy
-            </Menu.Item>
-            <Menu.Item className="dark:text-white dark:hover:text-black" key="2">
-                Quote
-            </Menu.Item>
-            <Menu.Item className="dark:text-white dark:hover:text-black" key="3">
-                Forward
-            </Menu.Item>
-            <Menu.Item className="dark:text-white dark:hover:text-black" key="3">
-                Select Message
-            </Menu.Item>
-        </Menu>
-    );
+    //copy a message
+    const copyMsg = (msg) => {
+        navigator.clipboard.writeText(msg);
+        antMessage.success('Message copied to clipboard');
+    };
 
     // get image in base64
     const getBase64 = (file) => {
@@ -178,23 +183,58 @@ const ChatArea = ({ image, isActive, name }) => {
             >
                 {chatList.map((chat, index) => (
                     <div key={index}>
-                        {chat.from === 'John Doe' ? (
+                        {chat.receiver === details?.email ? (
                             <>
                                 {/* Others message */}
                                 <div className="flex mb-5">
                                     <div className="h-9 w-9 lg:h-11 lg:w-11 border-gray-400 dark:border-gray-800 rounded-full">
                                         <img
                                             className="rounded-full h-9 w-9 lg:h-11 lg:w-11"
-                                            src={image}
+                                            src={
+                                                chattingUser.image
+                                                    ? chattingUser.image
+                                                    : `https://ui-avatars.com/api/?name=${chattingUser.name}`
+                                            }
                                             alt="user"
                                         />
                                     </div>
                                     <div>
                                         <div className="dark:text-gray-500 px-2">
-                                            {chat.timestamp}
+                                            {new Date(chat.updatedAt).toLocaleDateString('en-US', {
+                                                hour: 'numeric',
+                                                minute: 'numeric',
+                                            })}
                                         </div>
                                         <Dropdown
-                                            overlay={messageOptions}
+                                            overlay={
+                                                <Menu className="dark:bg-gray-800">
+                                                    <Menu.Item
+                                                        className="dark:text-white dark:hover:text-black"
+                                                        key="1"
+                                                        onClick={() => copyMsg(chat.message)}
+                                                    >
+                                                        Copy
+                                                    </Menu.Item>
+                                                    <Menu.Item
+                                                        className="dark:text-white dark:hover:text-black"
+                                                        key="2"
+                                                    >
+                                                        Quote
+                                                    </Menu.Item>
+                                                    <Menu.Item
+                                                        className="dark:text-white dark:hover:text-black"
+                                                        key="3"
+                                                    >
+                                                        Forward
+                                                    </Menu.Item>
+                                                    <Menu.Item
+                                                        className="dark:text-white dark:hover:text-black"
+                                                        key="3"
+                                                    >
+                                                        Select Message
+                                                    </Menu.Item>
+                                                </Menu>
+                                            }
                                             trigger={['contextMenu']}
                                         >
                                             <div className="ml-2 p-3 max-w-xs lg:max-w-lg xl:max-w-xl border dark:border-gray-800 rounded-tl-none rounded-xl dark:bg-gray-800 shadow-xl">
@@ -206,15 +246,45 @@ const ChatArea = ({ image, isActive, name }) => {
                             </>
                         ) : (
                             <>
-                                {console.log(index, chatList.length)}
                                 {/* my message */}
                                 <div className="flex mb-5 justify-end">
                                     <div>
                                         <div className="dark:text-gray-500 px-3 flex justify-end">
-                                            {chat.timestamp}
+                                            {new Date(chat.updatedAt).toLocaleDateString('en-US', {
+                                                hour: 'numeric',
+                                                minute: 'numeric',
+                                            })}
                                         </div>
                                         <Dropdown
-                                            overlay={messageOptions}
+                                            overlay={
+                                                <Menu className="dark:bg-gray-800">
+                                                    <Menu.Item
+                                                        className="dark:text-white dark:hover:text-black"
+                                                        key="1"
+                                                        onClick={() => copyMsg(chat.message)}
+                                                    >
+                                                        Copy
+                                                    </Menu.Item>
+                                                    <Menu.Item
+                                                        className="dark:text-white dark:hover:text-black"
+                                                        key="2"
+                                                    >
+                                                        Quote
+                                                    </Menu.Item>
+                                                    <Menu.Item
+                                                        className="dark:text-white dark:hover:text-black"
+                                                        key="3"
+                                                    >
+                                                        Forward
+                                                    </Menu.Item>
+                                                    <Menu.Item
+                                                        className="dark:text-white dark:hover:text-black"
+                                                        key="3"
+                                                    >
+                                                        Select Message
+                                                    </Menu.Item>
+                                                </Menu>
+                                            }
                                             trigger={['contextMenu']}
                                         >
                                             <div className="mr-2 p-3 max-w-xs lg:max-w-lg xl:max-w-xl ml-auto flex border dark:border-gray-800 rounded-tr-none rounded-xl dark:bg-gray-800 shadow-xl">
@@ -225,7 +295,11 @@ const ChatArea = ({ image, isActive, name }) => {
                                             <div className="h-5 w-5 mr-2 border-gray-400 ml-auto dark:border-gray-800 rounded-full">
                                                 <img
                                                     className="rounded-full h-5 w-5"
-                                                    src={image}
+                                                    src={
+                                                        chattingUser.image
+                                                            ? chattingUser.image
+                                                            : `https://ui-avatars.com/api/?name=${chattingUser.name}`
+                                                    }
                                                     alt="user"
                                                 />
                                             </div>
@@ -235,8 +309,8 @@ const ChatArea = ({ image, isActive, name }) => {
                                         <img
                                             className="rounded-full h-9 w-9 lg:h-11 lg:w-11"
                                             src={
-                                                user?.details?.photo ??
-                                                `https://ui-avatars.com/api/?name=${user.details.name}`
+                                                details?.photo ??
+                                                `https://ui-avatars.com/api/?name=${details.name}`
                                             }
                                             alt="user"
                                         />

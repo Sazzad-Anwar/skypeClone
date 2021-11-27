@@ -25,7 +25,7 @@ const ChattingHead = ({ closeUserChat, toggleRightSidePanel, chattingUser }) => 
         <div className="flex justify-between items-center border-b dark:border-gray-500">
             <div className="flex items-center mb-4">
                 <span
-                    class="visible w-auto lg:invisible lg:w-0 material-icons-outlined p-1.5 mr-3 cursor-pointer border rounded-full border-gray-400 dark:border-gray-800 hover:bg-gray-400 hover:text-white dark:hover:bg-gray-800 transition-all ease-in-out"
+                    className="visible w-auto lg:invisible lg:w-0 material-icons-outlined p-1.5 mr-3 cursor-pointer border rounded-full border-gray-400 dark:border-gray-800 hover:bg-gray-400 hover:text-white dark:hover:bg-gray-800 transition-all ease-in-out"
                     onClick={closeUserChat}
                 >
                     west
@@ -80,25 +80,25 @@ const ChattingHead = ({ closeUserChat, toggleRightSidePanel, chattingUser }) => 
 
                                 <ul className="list-none mx-8 mt-10 mb-7">
                                     <li className="border-b py-3 px-3 dark:border-gray-600 flex items-center cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-900  hover:text-white transition-all ease-in-out">
-                                        <span class="material-icons-outlined mr-2 text-xs">
+                                        <span className="material-icons-outlined mr-2 text-xs">
                                             message
                                         </span>
                                         <span>Send Message</span>
                                     </li>
                                     <li className="border-b py-3 dark:border-gray-600 flex items-center cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-900  hover:text-white px-3 transition-all ease-in-out">
-                                        <span class="material-icons-outlined mr-2 text-xs">
+                                        <span className="material-icons-outlined mr-2 text-xs">
                                             call
                                         </span>
                                         <span>Make a call</span>
                                     </li>
                                     <li className="border-b py-3 dark:border-gray-600 flex items-center cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-900  hover:text-white px-3 transition-all ease-in-out">
-                                        <span class="material-icons-outlined mr-2 text-xs">
+                                        <span className="material-icons-outlined mr-2 text-xs">
                                             videocam
                                         </span>
                                         <span>Make a video call</span>
                                     </li>
                                     <li className="border-b py-3 dark:border-gray-600 flex items-center cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-900  hover:text-white px-3 transition-all ease-in-out">
-                                        <span class="material-icons-outlined mr-2 text-xs text-red-700 font-bold">
+                                        <span className="material-icons-outlined mr-2 text-xs text-red-700 font-bold">
                                             block
                                         </span>
                                         <span>Block this user</span>

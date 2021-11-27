@@ -1,7 +1,7 @@
 const Modal = ({ children, showUserDetailsModal }) => {
     return (
         <div
-            class={`fixed z-10 inset-0 overflow-y-auto ease-in-out duration-300 ${
+            className={`fixed z-10 inset-0 overflow-y-auto ease-in-out duration-300 ${
                 showUserDetailsModal ? 'visible opacity-100' : 'invisible opacity-0'
             } `}
             aria-labelledby="modal-title"
@@ -9,7 +9,7 @@ const Modal = ({ children, showUserDetailsModal }) => {
             aria-modal="true"
         >
             <div
-                class="
+                className="
                     flex
                     items-center
                     justify-center
@@ -22,17 +22,20 @@ const Modal = ({ children, showUserDetailsModal }) => {
                 "
             >
                 <div
-                    class="fixed inset-0 bg-gray-500 dark:bg-transparent bg-opacity-75 transition-opacity"
+                    className="fixed inset-0 bg-gray-500 dark:bg-transparent bg-opacity-75 transition-opacity"
                     aria-hidden="true"
                 ></div>
 
-                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
+                <span
+                    className="hidden sm:inline-block sm:align-middle sm:h-screen"
+                    aria-hidden="true"
+                >
                     &#8203;
                 </span>
 
                 {/* <!-- modal body --> */}
                 <div
-                    class="
+                    className="
                         inline-block
                         align-bottom
                         bg-white

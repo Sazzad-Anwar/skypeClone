@@ -1,3 +1,4 @@
+import { LOGOUT } from '../Constants/LoginConstants';
 import {
     USER_DETAILS_REQUEST,
     USER_DETAILS_SUCCESS,
@@ -12,6 +13,8 @@ export const getUserDetailsReducer = (state = {}, action) => {
             return { isLoading: false, details: action.payload };
         case USER_DETAILS_FAILURE:
             return { isLoading: false, error: action.payload };
+        case LOGOUT:
+            return {};
         default:
             return state;
     }
