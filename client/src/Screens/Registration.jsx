@@ -27,9 +27,9 @@ const Registration = () => {
         if (user && user._id) {
             navigate(from);
         }
-    }, [navigate, from, user, dispatch]);
+    }, [navigate, from, user]);
 
-    const onSubmit = (data) => {
+    const registration = (data) => {
         dispatch(registrationAction(data));
         setTimeout(() => {
             window.location.reload();
@@ -58,7 +58,7 @@ const Registration = () => {
                     />
                     <h1 className="text-2xl font-semibold dark:text-white ">Sign in</h1>
                     <p>to continue to skype</p>
-                    <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+                    <form onSubmit={handleSubmit(registration)} autoComplete="off">
                         <div className="mt-6 mb-4">
                             <input
                                 {...register('name', { required: true })}

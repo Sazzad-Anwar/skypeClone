@@ -29,9 +29,9 @@ const socketIoInstance = socket => {
     socketHandler(io, socket)
 }
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'build', 'index.html'))
-})
+// app.get('*', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'build', 'index.html'))
+// })
 
 //Passing the socket instance to the socket handler
 io.on("connection", socketIoInstance);
