@@ -4,6 +4,7 @@ const { createServer } = require('http');
 const socketHandler = require('./socketHandler');
 const connectDB = require('./configuration/db/connection');
 const app = express();
+const path = require('path');
 const port = process.env.PORT || 5000;
 const httpServer = createServer(app);
 const morgan = require('morgan');
@@ -27,6 +28,10 @@ app.use('/api/v1', require('./Routes'));
 const socketIoInstance = socket => {
     socketHandler(io, socket)
 }
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'))
+})
 
 //Passing the socket instance to the socket handler
 io.on("connection", socketIoInstance);
