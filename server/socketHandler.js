@@ -33,10 +33,17 @@ const socketHandler = (io, socket) => {
         //Save the message to the database
         let newMessage = new Message({ sender, receiver, message, file, replyTo })
         let savedMessage = await newMessage.save();
+
         //Broadcast the message to the users
         io.to(socketId).emit("message", savedMessage);
+
+
+    })
+
+    socket.on('to-all', async (messageObject) => {
+
         //Broadcast the message to all the users
-        io.emit("messageSent", savedMessage);
+        io.emit("messageSent", messageObject);
     })
 
     //Get user's all chat

@@ -99,6 +99,7 @@ const ChatArea = ({ chattingUser }) => {
             // dispatch(messagesAction([...chatList, messageDetails]));
             setMessage('');
             socket.emit('message', messageDetails);
+            socket.emit('to-all', messageDetails);
         }
     };
 

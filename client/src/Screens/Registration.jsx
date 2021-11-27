@@ -24,7 +24,7 @@ const Registration = () => {
     let from = location.state?.from?.pathname || '/dashboard';
 
     useEffect(() => {
-        if (user && user.details) {
+        if (user && user._id) {
             navigate(from);
         }
     }, [navigate, from, user, dispatch]);

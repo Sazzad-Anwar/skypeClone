@@ -30,22 +30,16 @@ const SidePanel = ({
         let audio = new Audio('/message.mp3');
         if (Object.keys(socket).length) {
             socket.on('messageSent', (message) => {
-                if (
-                    (details && details.email === message.receiver) ||
-                    (details && details.email === message.sender)
-                ) {
-                    setMessageList((prevChatList) => [...prevChatList, message]);
-                    if (details && details.email === message.receiver) {
-                        audio.play();
-                    }
-                    // audio.play();
+                if (details && details.email === message.receiver) {
+                    setMessageList((prev) => [...prev, message]);
+                    audio.play();
                 }
             });
             return () => {
                 socket.off();
             };
         }
-    }, [details, socket]);
+    }, [details, messageList, socket]);
 
     const menu = (
         <Menu className="dark:bg-gray-800">
@@ -334,7 +328,12 @@ const SidePanel = ({
                             }
                             chattingUser={chattingUser}
                             userDetails={user}
-                            userMessage={messageList && messageList}
+                            userMessage={
+                                messageList &&
+                                messageList.filter(
+                                    (m) => m.sender === user.email || m.receiver === user.email,
+                                )
+                            }
                             openUserChat={openUserChat}
                         />
                     ))}
